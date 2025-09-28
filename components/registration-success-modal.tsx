@@ -13,6 +13,215 @@ interface RegistrationSuccessModalProps {
   userRole: string
 }
 
+function PlantingAnimation({ isPlaying }: { isPlaying: boolean }) {
+  return (
+    <div className="planting-container" aria-hidden="true">
+      <div className={`scene ${isPlaying ? "play" : ""}`}>
+        {/* Pot */}
+        <div className="pot">
+          <div className="pot-rim" />
+          <div className="pot-body" />
+          <div className="pot-shadow" />
+        </div>
+
+        {/* Soil */}
+        <div className="soil" />
+
+        {/* Seed drops into pot */}
+        <div className="seed" />
+
+        {/* Sprout grows */}
+        <div className="sprout">
+          <div className="stem" />
+          <div className="leaf leaf-left" />
+          <div className="leaf leaf-right" />
+        </div>
+      </div>
+
+      <style jsx>{`
+        .planting-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 12px 0;
+        }
+
+        .scene {
+          position: relative;
+          width: 180px;
+          height: 140px;
+        }
+
+        /* Pot */
+        .pot {
+          position: absolute;
+          bottom: 10px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 120px;
+          height: 70px;
+        }
+        .pot-rim {
+          position: absolute;
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 120px;
+          height: 20px;
+          background: #b7791f; /* terracotta rim */
+          border-radius: 10px;
+          box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.2);
+        }
+        .pot-body {
+          position: absolute;
+          top: 14px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 110px;
+          height: 58px;
+          background: #9a5a0d; /* deeper terracotta */
+          border-bottom-left-radius: 14px;
+          border-bottom-right-radius: 14px;
+          border-top-left-radius: 6px;
+          border-top-right-radius: 6px;
+          box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.08);
+        }
+        .pot-shadow {
+          position: absolute;
+          bottom: -6px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 90px;
+          height: 8px;
+          background: rgba(0, 0, 0, 0.07);
+          filter: blur(2px);
+          border-radius: 50%;
+        }
+
+        /* Soil */
+        .soil {
+          position: absolute;
+          bottom: 58px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 92px;
+          height: 18px;
+          background: #3f3f3f; /* dark soil */
+          border-radius: 50%;
+          opacity: 0;
+        }
+
+        /* Seed */
+        .seed {
+          position: absolute;
+          top: -10px;
+          left: 50%;
+          transform: translateX(-50%) translateY(0);
+          width: 10px;
+          height: 14px;
+          background: #f7e6b2;
+          border-radius: 6px 6px 6px 6px / 8px 8px 6px 6px;
+          box-shadow: inset 0 -1px 0 rgba(0,0,0,0.15);
+          opacity: 0;
+        }
+
+        /* Sprout */
+        .sprout {
+          position: absolute;
+          bottom: 64px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 0;
+          height: 0;
+        }
+        .stem {
+          position: absolute;
+          bottom: 0;
+          left: -1px;
+          width: 2px;
+          height: 0;
+          background: #15803d; /* green-700 */
+          border-radius: 2px;
+          transform-origin: bottom;
+        }
+        .leaf {
+          position: absolute;
+          bottom: 10px;
+          width: 0;
+          height: 0;
+          background: #16a34a; /* green-600 */
+          border-radius: 9999px;
+          transform-origin: left center;
+          opacity: 0;
+        }
+        .leaf-left {
+          left: -2px;
+          transform: rotate(-20deg) scale(0);
+        }
+        .leaf-right {
+          left: 0;
+          transform: rotate(20deg) scale(0);
+        }
+
+        /* Animations */
+        .scene.play .seed {
+          animation: drop-seed 900ms ease-out forwards;
+          animation-delay: 150ms;
+        }
+        .scene.play .soil {
+          animation: soil-appear 700ms ease-out forwards;
+          animation-delay: 650ms;
+        }
+        .scene.play .stem {
+          animation: stem-grow 1.2s ease-out forwards;
+          animation-delay: 900ms;
+        }
+        .scene.play .leaf-left {
+          animation: leaf-pop-left 900ms ease-out forwards;
+          animation-delay: 1200ms;
+        }
+        .scene.play .leaf-right {
+          animation: leaf-pop-right 900ms ease-out forwards;
+          animation-delay: 1250ms;
+        }
+        .scene.play .pot {
+          animation: pot-bounce 700ms ease-out 1 both;
+          animation-delay: 300ms;
+        }
+
+        @keyframes drop-seed {
+          0%   { transform: translateX(-50%) translateY(-10px); opacity: 0; }
+          60%  { transform: translateX(-50%) translateY(70px); opacity: 1; }
+          100% { transform: translateX(-50%) translateY(70px); opacity: 1; }
+        }
+        @keyframes soil-appear {
+          0%   { opacity: 0; transform: translateX(-50%) scale(0.8); }
+          100% { opacity: 1; transform: translateX(-50%) scale(1); }
+        }
+        @keyframes stem-grow {
+          0%   { height: 0; }
+          100% { height: 28px; }
+        }
+        @keyframes leaf-pop-left {
+          0%   { opacity: 0; transform: rotate(-20deg) scale(0); width: 0; height: 0; }
+          60%  { opacity: 1; transform: rotate(-12deg) scale(1.05); width: 18px; height: 10px; }
+          100% { opacity: 1; transform: rotate(-15deg) scale(1); width: 16px; height: 9px; }
+        }
+        @keyframes leaf-pop-right {
+          0%   { opacity: 0; transform: rotate(20deg) scale(0); width: 0; height: 0; left: 0; }
+          60%  { opacity: 1; transform: rotate(12deg) scale(1.05); width: 18px; height: 10px; left: 2px; }
+          100% { opacity: 1; transform: rotate(15deg) scale(1); width: 16px; height: 9px; left: 2px; }
+        }
+        @keyframes pot-bounce {
+          0%   { transform: translateX(-50%) translateY(0); }
+          40%  { transform: translateX(-50%) translateY(-4px); }
+          100% { transform: translateX(-50%) translateY(0); }
+        }
+      `}</style>
+    </div>
+  )
+}
+
 export function RegistrationSuccessModal({ isOpen, onClose, userName, userRole }: RegistrationSuccessModalProps) {
   const [showConfetti, setShowConfetti] = useState(false)
   const router = useRouter()
@@ -20,8 +229,10 @@ export function RegistrationSuccessModal({ isOpen, onClose, userName, userRole }
   useEffect(() => {
     if (isOpen) {
       setShowConfetti(true)
-      const timer = setTimeout(() => setShowConfetti(false), 3000)
-      return () => clearTimeout(timer)
+      const timer1 = setTimeout(() => setShowConfetti(false), 3000)
+      return () => {
+        clearTimeout(timer1)
+      }
     }
   }, [isOpen])
 
@@ -79,6 +290,9 @@ export function RegistrationSuccessModal({ isOpen, onClose, userName, userRole }
             </div>
           )}
 
+          {/* Planting Animation */}
+          <PlantingAnimation isPlaying={isOpen} />
+
           <DialogHeader className="text-center space-y-4">
             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
               <CheckCircle className="w-8 h-8 text-green-600" />
@@ -90,10 +304,10 @@ export function RegistrationSuccessModal({ isOpen, onClose, userName, userRole }
           <div className="space-y-6 py-4">
             {/* Success Message */}
             <div className="text-center space-y-3">
-              <p className="text-lg font-semibold text-green-700">Thanks for registering, {userName}!</p>
+              <p className="text-lg font-semibold text-green-700">Registration successful! 🌱</p>
               <p className="text-green-600">
-                You have successfully registered as a{" "}
-                <span className="font-semibold">{getRoleDisplayName(userRole)}</span>
+                Thanks for registering, {userName}! You have successfully joined as a{" "}
+                <span className="font-semibold">{getRoleDisplayName(userRole)}</span>.
               </p>
             </div>
 

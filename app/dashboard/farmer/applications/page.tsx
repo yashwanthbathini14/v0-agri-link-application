@@ -1,6 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useAuth } from "@/lib/auth-context"
+import { collection, onSnapshot, query, where, orderBy, deleteDoc, doc } from "firebase/firestore"
+import { db } from "@/lib/firebase"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -9,66 +12,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Home, Search, Heart, MessageSquare, User, MapPin, IndianRupee, Calendar, Eye, Phone } from "lucide-react"
 import Image from "next/image"
 
+type AppItem = {
+  id: string
+  propertyId: number | string
+  propertyTitle?: string
+  location?: string
+  price?: number
+  appliedDate?: string
+  status: "pending" | "approved" | "rejected" | "under_review"
+  landowner?: string
+  landownerPhone?: string
+  message?: string
+  image?: string
+}
+
 const navigation = [
   { name: "Overview", href: "/dashboard/farmer", icon: Home },
   { name: "Browse Land", href: "/dashboard/farmer/browse", icon: Search },
   { name: "My Applications", href: "/dashboard/farmer/applications", icon: User, current: true },
   { name: "Saved Properties", href: "/dashboard/farmer/saved", icon: Heart },
   { name: "Messages", href: "/dashboard/farmer/messages", icon: MessageSquare },
-]
-
-const applications = [
-  {
-    id: 1,
-    propertyTitle: "Organic Spice Farm - 30 acres",
-    location: "Kochi, Kerala",
-    price: 55000,
-    appliedDate: "2024-01-15",
-    status: "pending",
-    landowner: "Rajesh Kumar",
-    landownerPhone: "+91 98765 43210",
-    message:
-      "I am very interested in your organic spice farm. I have 8 years of experience in organic farming and would love to continue the sustainable practices you've established.",
-    image: "/placeholder.svg?height=100&width=150&text=Spice+Farm",
-  },
-  {
-    id: 2,
-    propertyTitle: "Basmati Rice Fields - 25 acres",
-    location: "Ludhiana, Punjab",
-    price: 45000,
-    appliedDate: "2024-01-12",
-    status: "approved",
-    landowner: "Harpreet Singh",
-    landownerPhone: "+91 98765 43211",
-    message:
-      "I have extensive experience in basmati rice cultivation and would like to lease your premium fields for export-quality production.",
-    image: "/placeholder.svg?height=100&width=150&text=Rice+Fields",
-  },
-  {
-    id: 3,
-    propertyTitle: "Cotton Farm - 40 acres",
-    location: "Ahmedabad, Gujarat",
-    price: 48000,
-    appliedDate: "2024-01-10",
-    status: "rejected",
-    landowner: "Amit Patel",
-    landownerPhone: "+91 98765 43212",
-    message: "I am interested in cotton cultivation using modern BT varieties and drip irrigation techniques.",
-    image: "/placeholder.svg?height=100&width=150&text=Cotton+Farm",
-  },
-  {
-    id: 4,
-    propertyTitle: "Tea Garden Estate - 60 acres",
-    location: "Darjeeling, West Bengal",
-    price: 75000,
-    appliedDate: "2024-01-08",
-    status: "under_review",
-    landowner: "Subhash Ghosh",
-    landownerPhone: "+91 98765 43213",
-    message:
-      "I have experience in high-altitude tea cultivation and would like to maintain the premium quality of your Darjeeling tea garden.",
-    image: "/placeholder.svg?height=100&width=150&text=Tea+Garden",
-  },
 ]
 
 const getStatusColor = (status: string) => {
@@ -98,27 +61,60 @@ const getStatusText = (status: string) => {
 }
 
 export default function ApplicationsPage() {
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState("all")
+  const [applications, setApplications] = useState<AppItem[]>([])
+
+  useEffect(() => {
+    if (!user) {
+      setApplications([])
+      return
+    }
+    const q = query(collection(db, "applications"), where("applicantId", "==", user.uid), orderBy("createdAt", "desc"))
+    const unsub = onSnapshot(q, (snap) => {
+      const rows: AppItem[] = snap.docs.map((d) => {
+        const data = d.data() as any
+        return {
+          id: d.id,
+          propertyId: data.propertyId,
+          propertyTitle: data.propertyTitle || "Property",
+          location: data.location || "—",
+          price: data.price || undefined,
+          appliedDate: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : undefined,
+          status: data.status || "pending",
+          landowner: data.landowner || undefined,
+          landownerPhone: data.landownerPhone || undefined,
+          message: data.message || "",
+          image: data.image || "/diverse-property-showcase.png",
+        }
+      })
+      setApplications(rows)
+    })
+    return () => unsub()
+  }, [user])
 
   const filteredApplications = applications.filter((app) => {
     if (activeTab === "all") return true
-    return app.status === activeTab
+    return app.status === (activeTab as AppItem["status"])
   })
 
-  const handleContact = (phone: string) => {
-    console.log("[v0] Contacting landowner:", phone)
+  const handleContact = (phone: string | undefined) => {
+    if (!phone) return
     window.location.href = `tel:${phone}`
   }
 
-  const handleViewProperty = (id: number) => {
-    console.log("[v0] Viewing property:", id)
+  const handleViewProperty = (id: number | string) => {
     window.location.href = `/dashboard/farmer/property/${id}`
   }
 
-  const handleWithdraw = (id: number) => {
-    console.log("[v0] Withdrawing application:", id)
-    if (confirm("Are you sure you want to withdraw this application?")) {
-      alert("Application withdrawn successfully.")
+  const handleWithdraw = async (id: string) => {
+    if (!confirm("Are you sure you want to withdraw this application?")) return
+    try {
+      await deleteDoc(doc(db, "applications", id))
+      // snapshot will refresh automatically
+    } catch (e) {
+      console.error("[v0] Failed to withdraw:", e)
+      alert("Failed to withdraw. Please try again.")
     }
   }
 
@@ -205,7 +201,7 @@ export default function ApplicationsPage() {
                                 </div>
                                 <div className="flex items-center mt-1">
                                   <IndianRupee className="h-4 w-4 mr-1 text-muted-foreground" />
-                                  <span className="font-medium">₹{application.price.toLocaleString()}/month</span>
+                                  <span className="font-medium">₹{application.price?.toLocaleString()}/month</span>
                                 </div>
                               </div>
                               <div className="text-right">
@@ -230,7 +226,11 @@ export default function ApplicationsPage() {
                                 <strong>Landowner:</strong> {application.landowner}
                               </div>
                               <div className="flex space-x-2">
-                                <Button size="sm" variant="outline" onClick={() => handleViewProperty(application.id)}>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleViewProperty(application.propertyId)}
+                                >
                                   <Eye className="h-3 w-3 mr-1" />
                                   View Property
                                 </Button>

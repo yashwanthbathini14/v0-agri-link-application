@@ -67,31 +67,40 @@ export default function RegisterPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password)
       const user = userCredential.user
 
+      setShowSuccessModal(true)
+      setLoading(false)
+
       let profileImageUrl = ""
       if (profileImage) {
         try {
           profileImageUrl = await uploadProfileImage(profileImage, user.uid)
         } catch (imageError) {
-          console.error("Failed to upload profile image:", imageError)
+          console.warn("[v0] Failed to upload profile image (continuing):", imageError)
         }
       }
 
-      await setDoc(doc(db, "users", user.uid), {
-        uid: user.uid,
-        name: formData.name,
-        email: formData.email,
-        role: formData.role,
-        phone: formData.phone,
-        location: formData.location,
-        profileImageUrl,
-        createdAt: new Date(),
-      })
-
-      setShowSuccessModal(true)
+      try {
+        await setDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
+          name: formData.name,
+          email: formData.email,
+          role: formData.role,
+          phone: formData.phone,
+          location: formData.location,
+          profileImageUrl,
+          createdAt: new Date(),
+        })
+        console.log("[v0] User profile document created/updated")
+      } catch (docError: any) {
+        console.warn(
+          "[v0] Failed to write user profile (will rely on default/fallback):",
+          docError?.message || docError,
+        )
+      }
     } catch (error: any) {
       setError(error.message || "Failed to create account")
-    } finally {
       setLoading(false)
+      setShowSuccessModal(false)
     }
   }
 

@@ -13,6 +13,9 @@ import { Home, Search, Heart, MessageSquare, User, MapPin, IndianRupee, Sparkles
 import Image from "next/image"
 import { LocationAutocomplete } from "@/components/location-autocomplete"
 import { AdvancedFilters } from "@/components/advanced-filters"
+import { useAuth } from "@/lib/auth-context"
+import { addDoc, collection, deleteDoc, doc, onSnapshot, query, where, serverTimestamp } from "firebase/firestore"
+import { db } from "@/lib/firebase"
 
 const navigation = [
   { name: "Overview", href: "/dashboard/farmer", icon: Home },
@@ -275,6 +278,8 @@ const allProperties = [
 ]
 
 export default function BrowseLandPage() {
+  const { user, isEmailVerified } = useAuth()
+  const [savedIds, setSavedIds] = useState<Set<number>>(new Set())
   const [searchQuery, setSearchQuery] = useState("")
   const [locationQuery, setLocationQuery] = useState("")
   const [priceRange, setPriceRange] = useState([0, 100000])
@@ -283,14 +288,13 @@ export default function BrowseLandPage() {
   const [selectedState, setSelectedState] = useState("any")
   const [filteredProperties, setFilteredProperties] = useState(allProperties)
   const [sortBy, setSortBy] = useState("match")
-
   const [advancedFilters, setAdvancedFilters] = useState({
-    soilType: [] as string[],
-    irrigationType: [] as string[],
-    cropHistory: [] as string[],
+    soilType: [],
+    irrigationType: [],
+    cropHistory: [],
     organicCertified: false,
     equipmentIncluded: false,
-    waterSource: [] as string[],
+    waterSource: [],
     elevation: [0, 3000],
     roadAccess: "any",
     electricityAvailable: false,
@@ -298,6 +302,24 @@ export default function BrowseLandPage() {
     processingFacility: false,
     contractFarming: false,
   })
+
+  useEffect(() => {
+    if (!user) {
+      setSavedIds(new Set())
+      return
+    }
+    const q = query(collection(db, "saved"), where("userId", "==", user.uid))
+    const unsub = onSnapshot(q, (snap) => {
+      const ids = new Set<number>()
+      snap.forEach((d) => {
+        const pid = d.data()?.propertyId
+        if (typeof pid === "number") ids.add(pid)
+        else if (typeof pid === "string" && !Number.isNaN(Number(pid))) ids.add(Number(pid))
+      })
+      setSavedIds(ids)
+    })
+    return () => unsub()
+  }, [user])
 
   useEffect(() => {
     let filtered = allProperties.filter((property) => {
@@ -396,14 +418,61 @@ export default function BrowseLandPage() {
     })
   }
 
-  const handleApply = (propertyId: number) => {
-    console.log("[v0] Applying to property:", propertyId)
-    alert("Application submitted successfully! The landowner will be notified.")
+  const handleApply = async (propertyId: number) => {
+    if (!user) {
+      alert("Please sign in to apply.")
+      return
+    }
+    if (!isEmailVerified) {
+      alert("Please verify your email before applying.")
+      return
+    }
+    try {
+      await addDoc(collection(db, "applications"), {
+        propertyId,
+        applicantId: user.uid,
+        status: "pending",
+        message: "",
+        createdAt: serverTimestamp(),
+      })
+      alert("Application submitted successfully! The landowner will be notified.")
+    } catch (e) {
+      console.error("[v0] Failed to submit application:", e)
+      alert("Failed to submit application. Please try again.")
+    }
   }
 
-  const handleSave = (propertyId: number) => {
-    console.log("[v0] Saving property:", propertyId)
-    setFilteredProperties((prev) => prev.map((p) => (p.id === propertyId ? { ...p, saved: !p.saved } : p)))
+  const handleSave = async (propertyId: number) => {
+    if (!user) {
+      alert("Please sign in to save properties.")
+      return
+    }
+    if (!isEmailVerified) {
+      alert("Please verify your email before saving properties.")
+      return
+    }
+    const alreadySaved = savedIds.has(propertyId)
+    try {
+      if (alreadySaved) {
+        // delete any saved doc with this propertyId and userId
+        const q = query(collection(db, "saved"), where("userId", "==", user.uid), where("propertyId", "==", propertyId))
+        const unsub = onSnapshot(q, async (snap) => {
+          // one-shot delete; immediately unsubscribe
+          unsub()
+          const batchDeletes = snap.docs.map((d) => deleteDoc(doc(db, "saved", d.id)))
+          await Promise.all(batchDeletes)
+        })
+      } else {
+        await addDoc(collection(db, "saved"), {
+          userId: user.uid,
+          propertyId,
+          createdAt: serverTimestamp(),
+        })
+      }
+    } catch (e) {
+      console.error("[v0] Failed to toggle save:", e)
+      alert("Failed to update saved property. Please try again.")
+    }
   }
 
   const handleViewDetails = (propertyId: number) => {
@@ -525,78 +594,81 @@ export default function BrowseLandPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {filteredProperties.map((property) => (
-            <Card key={property.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start space-x-4">
-                    <div className="relative w-20 h-20 rounded-lg overflow-hidden">
-                      <Image
-                        src={property.image || "/placeholder.svg"}
-                        alt={property.title}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <CardTitle className="text-lg">{property.title}</CardTitle>
-                      <div className="flex items-center text-muted-foreground mt-1">
-                        <MapPin className="h-4 w-4 mr-1" />
-                        {property.location}
+          {filteredProperties.map((property) => {
+            const isSaved = savedIds.has(property.id) // reflect live saved state
+            return (
+              <Card key={property.id} className="hover:shadow-md transition-shadow">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start space-x-4">
+                      <div className="relative w-20 h-20 rounded-lg overflow-hidden">
+                        <Image
+                          src={property.image || "/placeholder.svg"}
+                          alt={property.title}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <CardTitle className="text-lg">{property.title}</CardTitle>
+                        <div className="flex items-center text-muted-foreground mt-1">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          {property.location}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex flex-col items-end space-y-2">
-                    <Badge className="bg-primary/10 text-primary border-primary/20">
-                      <Sparkles className="h-3 w-3 mr-1" />
-                      {property.match}% Match
-                    </Badge>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Eye className="h-3 w-3 mr-1" />
-                      {property.views} views
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center">
-                        <IndianRupee className="h-4 w-4 text-muted-foreground mr-1" />
-                        <span className="font-medium">₹{property.price.toLocaleString()}/month</span>
-                      </div>
-                      <div className="text-muted-foreground">
-                        {property.acreage} acres • {property.type}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {property.features.map((feature) => (
-                      <Badge key={feature} variant="secondary">
-                        {feature}
+                    <div className="flex flex-col items-end space-y-2">
+                      <Badge className="bg-primary/10 text-primary border-primary/20">
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        {property.match}% Match
                       </Badge>
-                    ))}
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Eye className="h-3 w-3 mr-1" />
+                        {property.views} views
+                      </div>
+                    </div>
                   </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center">
+                          <IndianRupee className="h-4 w-4 text-muted-foreground mr-1" />
+                          <span className="font-medium">₹{property.price.toLocaleString()}/month</span>
+                        </div>
+                        <div className="text-muted-foreground">
+                          {property.acreage} acres • {property.type}
+                        </div>
+                      </div>
+                    </div>
 
-                  <p className="text-sm text-muted-foreground">{property.description}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {property.features.map((feature) => (
+                        <Badge key={feature} variant="secondary">
+                          {feature}
+                        </Badge>
+                      ))}
+                    </div>
 
-                  <div className="flex space-x-2">
-                    <Button className="flex-1" onClick={() => handleApply(property.id)}>
-                      Apply Now
-                    </Button>
-                    <Button variant="outline" size="icon" onClick={() => handleSave(property.id)}>
-                      <Heart className={`h-4 w-4 ${property.saved ? "fill-current text-red-500" : ""}`} />
-                    </Button>
-                    <Button variant="outline" onClick={() => handleViewDetails(property.id)}>
-                      View Details
-                    </Button>
+                    <p className="text-sm text-muted-foreground">{property.description}</p>
+
+                    <div className="flex space-x-2">
+                      <Button className="flex-1" onClick={() => handleApply(property.id)}>
+                        Apply Now
+                      </Button>
+                      <Button variant="outline" size="icon" onClick={() => handleSave(property.id)}>
+                        <Heart className={`h-4 w-4 ${isSaved ? "fill-current text-red-500" : ""}`} />
+                      </Button>
+                      <Button variant="outline" onClick={() => handleViewDetails(property.id)}>
+                        View Details
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
 
         {filteredProperties.length === 0 && (

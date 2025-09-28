@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -26,6 +26,9 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 import { CropSuggestions } from "@/components/crop-suggestions"
+import { useAuth } from "@/lib/auth-context"
+import { addDoc, collection, deleteDoc, doc, onSnapshot, query, where, serverTimestamp } from "firebase/firestore"
+import { db } from "@/lib/firebase"
 
 const navigation = [
   { name: "Overview", href: "/dashboard/farmer", icon: Home },
@@ -83,27 +86,91 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
   const [applicantName, setApplicantName] = useState("")
   const [applicantExperience, setApplicantExperience] = useState("")
   const [showApplication, setShowApplication] = useState(false)
+  const { user, isEmailVerified } = useAuth()
+  const [isSaved, setIsSaved] = useState(false)
 
-  const handleApply = () => {
+  useEffect(() => {
+    if (!user) {
+      setIsSaved(false)
+      return
+    }
+    const q = query(
+      collection(db, "saved"),
+      where("userId", "==", user.uid),
+      where("propertyId", "==", Number(params.id)),
+    )
+    const unsub = onSnapshot(q, (snap) => {
+      setIsSaved(!snap.empty)
+    })
+    return () => unsub()
+  }, [user, params.id])
+
+  const handleApply = async () => {
+    if (!user) {
+      alert("Please sign in to apply.")
+      return
+    }
+    if (!isEmailVerified) {
+      alert("Please verify your email before applying.")
+      return
+    }
     if (!applicantName || !applicationMessage) {
       alert("Please fill in all required fields")
       return
     }
-
-    console.log("[v0] Submitting application:", {
-      propertyId: params.id,
-      applicantName,
-      experience: applicantExperience,
-      message: applicationMessage,
-    })
-
-    alert("Application submitted successfully! The landowner will be notified and will contact you soon.")
-    setShowApplication(false)
+    try {
+      await addDoc(collection(db, "applications"), {
+        propertyId: Number(params.id),
+        applicantId: user.uid,
+        status: "pending",
+        message: applicationMessage,
+        applicantName,
+        applicantExperience,
+        createdAt: serverTimestamp(),
+      })
+      alert("Application submitted successfully! The landowner will be notified and will contact you soon.")
+      setShowApplication(false)
+    } catch (e) {
+      console.error("[v0] Failed to submit application:", e)
+      alert("Failed to submit application. Please try again.")
+    }
   }
 
-  const handleSave = () => {
-    console.log("[v0] Saving property:", params.id)
-    alert("Property saved to your favorites!")
+  const handleSave = async () => {
+    if (!user) {
+      alert("Please sign in to save properties.")
+      return
+    }
+    if (!isEmailVerified) {
+      alert("Please verify your email before saving properties.")
+      return
+    }
+    try {
+      if (isSaved) {
+        const q = query(
+          collection(db, "saved"),
+          where("userId", "==", user.uid),
+          where("propertyId", "==", Number(params.id)),
+        )
+        const unsub = onSnapshot(q, async (snap) => {
+          unsub()
+          await Promise.all(snap.docs.map((d) => deleteDoc(doc(db, "saved", d.id))))
+          alert("Property removed from your favorites!")
+          setIsSaved(false)
+        })
+      } else {
+        await addDoc(collection(db, "saved"), {
+          userId: user.uid,
+          propertyId: Number(params.id),
+          createdAt: serverTimestamp(),
+        })
+        alert("Property saved to your favorites!")
+        setIsSaved(true)
+      }
+    } catch (e) {
+      console.error("[v0] Failed to toggle save:", e)
+      alert("Failed to update saved property. Please try again.")
+    }
   }
 
   const handleContact = () => {
@@ -285,8 +352,8 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                     Apply for This Property
                   </Button>
                   <Button variant="outline" className="w-full bg-transparent" onClick={handleSave}>
-                    <Heart className="h-4 w-4 mr-2" />
-                    Save Property
+                    <Heart className={`h-4 w-4 mr-2 ${isSaved ? "fill-current text-red-500" : ""}`} />
+                    {isSaved ? "Saved" : "Save Property"}
                   </Button>
                   <Button variant="outline" className="w-full bg-transparent" onClick={handleContact}>
                     <Phone className="h-4 w-4 mr-2" />
