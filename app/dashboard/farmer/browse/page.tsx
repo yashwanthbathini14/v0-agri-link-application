@@ -593,99 +593,119 @@ export default function BrowseLandPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {filteredProperties.map((property) => {
-            const isSaved = savedIds.has(property.id) // reflect live saved state
-            return (
-              <Card key={property.id} className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-4">
-                      <div className="relative w-20 h-20 rounded-lg overflow-hidden">
-                        <Image
-                          src={property.image || "/placeholder.svg"}
-                          alt={property.title}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <CardTitle className="text-lg">{property.title}</CardTitle>
-                        <div className="flex items-center text-muted-foreground mt-1">
-                          <MapPin className="h-4 w-4 mr-1" />
-                          {property.location}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end space-y-2">
-                      <Badge className="bg-primary/10 text-primary border-primary/20">
-                        <Sparkles className="h-3 w-3 mr-1" />
-                        {property.match}% Match
-                      </Badge>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Eye className="h-3 w-3 mr-1" />
-                        {property.views} views
-                      </div>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="flex items-center">
-                          <IndianRupee className="h-4 w-4 text-muted-foreground mr-1" />
-                          <span className="font-medium">₹{property.price.toLocaleString()}/month</span>
-                        </div>
-                        <div className="text-muted-foreground">
-                          {property.acreage} acres • {property.type}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      {property.features.map((feature) => (
-                        <Badge key={feature} variant="secondary">
-                          {feature}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <p className="text-sm text-muted-foreground">{property.description}</p>
-
-                    <div className="flex space-x-2">
-                      <Button className="flex-1" onClick={() => handleApply(property.id)}>
-                        Apply Now
-                      </Button>
-                      <Button variant="outline" size="icon" onClick={() => handleSave(property.id)}>
-                        <Heart className={`h-4 w-4 ${isSaved ? "fill-current text-red-500" : ""}`} />
-                      </Button>
-                      <Button variant="outline" onClick={() => handleViewDetails(property.id)}>
-                        View Details
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
-
-        {filteredProperties.length === 0 && (
+        {filteredProperties.length === 0 ? (
           <Card>
-            <CardContent className="text-center py-12">
-              <p className="text-muted-foreground">
-                No properties found matching your criteria. Try adjusting your filters.
+            <CardContent className="py-16 text-center">
+              <Search className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-xl font-semibold mb-2">No properties found</h3>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                Sorry, we couldn't find any properties matching your search criteria. Try adjusting your filters or
+                search terms.
               </p>
+              <div className="flex justify-center space-x-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSearchQuery("")
+                    setLocationQuery("")
+                    setPropertyType("any")
+                    setSelectedState("any")
+                    setPriceRange([0, 100000])
+                    setAcreageRange([0, 100])
+                    clearAdvancedFilters()
+                  }}
+                >
+                  Clear All Filters
+                </Button>
+                <Button onClick={() => setSearchQuery("")}>Browse All Properties</Button>
+              </div>
             </CardContent>
           </Card>
-        )}
+        ) : (
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {filteredProperties.map((property) => {
+                const isSaved = savedIds.has(property.id)
+                return (
+                  <Card key={property.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start space-x-4">
+                          <div className="relative w-20 h-20 rounded-lg overflow-hidden">
+                            <Image
+                              src={property.image || "/placeholder.svg"}
+                              alt={property.title}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <CardTitle className="text-lg">{property.title}</CardTitle>
+                            <div className="flex items-center text-muted-foreground mt-1">
+                              <MapPin className="h-4 w-4 mr-1" />
+                              {property.location}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end space-y-2">
+                          <Badge className="bg-primary/10 text-primary border-primary/20">
+                            <Sparkles className="h-3 w-3 mr-1" />
+                            {property.match}% Match
+                          </Badge>
+                          <div className="flex items-center text-sm text-muted-foreground">
+                            <Eye className="h-3 w-3 mr-1" />
+                            {property.views} views
+                          </div>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <div className="flex items-center">
+                              <IndianRupee className="h-4 w-4 text-muted-foreground mr-1" />
+                              <span className="font-medium">₹{property.price.toLocaleString()}/month</span>
+                            </div>
+                            <div className="text-muted-foreground">
+                              {property.acreage} acres • {property.type}
+                            </div>
+                          </div>
+                        </div>
 
-        {/* Load More */}
-        {filteredProperties.length > 0 && (
-          <div className="text-center">
-            <Button variant="outline">Load More Properties</Button>
-          </div>
+                        <div className="flex flex-wrap gap-2">
+                          {property.features.map((feature) => (
+                            <Badge key={feature} variant="secondary">
+                              {feature}
+                            </Badge>
+                          ))}
+                        </div>
+
+                        <p className="text-sm text-muted-foreground">{property.description}</p>
+
+                        <div className="flex space-x-2">
+                          <Button className="flex-1" onClick={() => handleApply(property.id)}>
+                            Apply Now
+                          </Button>
+                          <Button variant="outline" size="icon" onClick={() => handleSave(property.id)}>
+                            <Heart className={`h-4 w-4 ${isSaved ? "fill-current text-red-500" : ""}`} />
+                          </Button>
+                          <Button variant="outline" onClick={() => handleViewDetails(property.id)}>
+                            View Details
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+
+            {/* Load More */}
+            <div className="text-center">
+              <Button variant="outline">Load More Properties</Button>
+            </div>
+          </>
         )}
       </div>
     </DashboardLayout>

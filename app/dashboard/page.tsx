@@ -3,7 +3,7 @@
 import { useAuth } from "@/lib/auth-context"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
-import { Loader2 } from "lucide-react"
+import { FlowerLoader } from "@/components/flower-loader"
 
 export default function DashboardPage() {
   const { user, userProfile, loading } = useAuth()
@@ -30,17 +30,9 @@ export default function DashboardPage() {
     }
   }, [user, userProfile, loading, router])
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <FlowerLoader size="lg" />
     </div>
   )
 }

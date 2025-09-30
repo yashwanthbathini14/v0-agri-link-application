@@ -10,9 +10,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Leaf, Loader2 } from "lucide-react"
+import { Leaf } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { FlowerLoader } from "@/components/flower-loader"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -84,7 +85,11 @@ export default function LoginPage() {
               )}
 
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {loading && (
+                  <div className="mr-2 inline-block">
+                    <FlowerLoader size="sm" />
+                  </div>
+                )}
                 Sign In
               </Button>
             </form>

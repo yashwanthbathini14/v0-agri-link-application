@@ -12,8 +12,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Home, MapPin, Users, MessageSquare, BarChart3, Loader2, Sparkles } from "lucide-react"
+import { Home, MapPin, Users, MessageSquare, BarChart3, Sparkles } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { FlowerLoader } from "@/components/flower-loader"
 
 const navigation = [
   { name: "Overview", href: "/dashboard/landowner", icon: Home },
@@ -233,7 +234,9 @@ export default function NewPropertyPage() {
                     disabled={aiGenerating}
                   >
                     {aiGenerating ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <div className="mr-2 inline-block">
+                        <FlowerLoader size="sm" />
+                      </div>
                     ) : (
                       <Sparkles className="mr-2 h-4 w-4" />
                     )}
@@ -258,7 +261,11 @@ export default function NewPropertyPage() {
 
               <div className="flex space-x-4">
                 <Button type="submit" disabled={loading}>
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {loading && (
+                    <div className="mr-2 inline-block">
+                      <FlowerLoader size="sm" />
+                    </div>
+                  )}
                   Create Property Listing
                 </Button>
                 <Button type="button" variant="outline" onClick={() => router.back()}>

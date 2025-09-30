@@ -27,9 +27,16 @@ export const auth = getAuth(app)
 export const db = getFirestore(app)
 export const storage = getStorage(app)
 
+let firestoreConnectionInitialized = false
+
 export const ensureFirestoreConnection = async () => {
+  if (firestoreConnectionInitialized) {
+    return
+  }
+
   try {
     await enableNetwork(db)
+    firestoreConnectionInitialized = true
     console.log("[v0] Firestore network enabled successfully")
   } catch (error) {
     // Some browsers can throw if called while already enabled; keep this quiet.

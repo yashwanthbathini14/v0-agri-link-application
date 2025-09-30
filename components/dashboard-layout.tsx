@@ -19,6 +19,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { NotificationCenter } from "@/components/notification-center"
+import { FlowerLoader } from "@/components/flower-loader"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -96,10 +97,7 @@ export function DashboardLayout({ children, title, navigation }: DashboardLayout
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Leaf className="h-8 w-8 text-primary mx-auto mb-4 animate-pulse" />
-          <p className="text-muted-foreground">Loading AgriLink...</p>
-        </div>
+        <FlowerLoader size="lg" text="Loading AgriLink..." />
       </div>
     )
   }

@@ -12,7 +12,7 @@ import {
   MessageSquare,
   User,
   Star,
-  DollarSign,
+  IndianRupee,
   Calendar,
   TrendingUp,
   Clock,
@@ -75,10 +75,10 @@ export default function WorkerDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Earnings (YTD)</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <IndianRupee className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">$42,500</div>
+              <div className="text-2xl font-bold">₹34,50,000</div>
               <p className="text-xs text-muted-foreground">+18% from last year</p>
             </CardContent>
           </Card>
@@ -104,7 +104,7 @@ export default function WorkerDashboard() {
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
                       <h4 className="font-medium">Harvest Supervisor</h4>
-                      <p className="text-sm text-muted-foreground">Organic Valley Farm • Salinas, CA</p>
+                      <p className="text-sm text-muted-foreground">Organic Valley Farm • Punjab</p>
                       <div className="flex items-center mt-1">
                         <Calendar className="h-3 w-3 mr-1 text-muted-foreground" />
                         <span className="text-xs text-muted-foreground">Seasonal • 3 months</span>
@@ -118,7 +118,7 @@ export default function WorkerDashboard() {
                       <Badge variant="outline">Organic</Badge>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium">$28/hour</p>
+                      <p className="font-medium">₹280/hour</p>
                     </div>
                   </div>
                   <p className="text-sm text-muted-foreground mt-2">
@@ -136,7 +136,7 @@ export default function WorkerDashboard() {
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
                       <h4 className="font-medium">Irrigation Specialist</h4>
-                      <p className="text-sm text-muted-foreground">Sunset Orchard • Fresno, CA</p>
+                      <p className="text-sm text-muted-foreground">Sunset Orchard • Maharashtra</p>
                       <div className="flex items-center mt-1">
                         <Calendar className="h-3 w-3 mr-1 text-muted-foreground" />
                         <span className="text-xs text-muted-foreground">Full-time • Permanent</span>
@@ -150,7 +150,7 @@ export default function WorkerDashboard() {
                       <Badge variant="outline">Benefits</Badge>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium">$32/hour</p>
+                      <p className="font-medium">₹320/hour</p>
                     </div>
                   </div>
                   <p className="text-sm text-muted-foreground mt-2">
@@ -168,7 +168,7 @@ export default function WorkerDashboard() {
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
                       <h4 className="font-medium">Equipment Operator</h4>
-                      <p className="text-sm text-muted-foreground">Mountain View Ranch • Bakersfield, CA</p>
+                      <p className="text-sm text-muted-foreground">Mountain View Ranch • Haryana</p>
                       <div className="flex items-center mt-1">
                         <Calendar className="h-3 w-3 mr-1 text-muted-foreground" />
                         <span className="text-xs text-muted-foreground">Contract • 6 months</span>
@@ -179,14 +179,14 @@ export default function WorkerDashboard() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Badge variant="secondary">Heavy Equipment</Badge>
-                      <Badge variant="outline">CDL Required</Badge>
+                      <Badge variant="outline">License Required</Badge>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium">$26/hour</p>
+                      <p className="font-medium">₹260/hour</p>
                     </div>
                   </div>
                   <p className="text-sm text-muted-foreground mt-2">
-                    Operate tractors and harvesting equipment. CDL license and 3+ years experience required.
+                    Operate tractors and harvesting equipment. Valid license and 3+ years experience required.
                   </p>
                   <div className="flex space-x-2 mt-3">
                     <Button size="sm">Apply Now</Button>

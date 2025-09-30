@@ -13,12 +13,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Leaf, Loader2 } from "lucide-react"
+import { Leaf } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { RegistrationSuccessModal } from "@/components/registration-success-modal"
 import { ProfilePictureUpload } from "@/components/profile-picture-upload"
 import { LocationAutocomplete } from "@/components/location-autocomplete"
+import { FlowerLoader } from "@/components/flower-loader"
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -213,7 +214,11 @@ export default function RegisterPage() {
                 )}
 
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {loading && (
+                    <div className="mr-2 inline-block">
+                      <FlowerLoader size="sm" />
+                    </div>
+                  )}
                   Create Account
                 </Button>
               </form>

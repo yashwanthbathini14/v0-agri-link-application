@@ -5,8 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Sparkles, Loader2, TrendingUp, DollarSign, Calendar } from "lucide-react"
+import { Sparkles, TrendingUp, DollarSign, Calendar } from "lucide-react"
 import { generateCropSuggestions, type CropSuggestion } from "@/lib/ai-services"
+import { FlowerLoader } from "@/components/flower-loader"
 
 interface CropSuggestionsProps {
   location: string
@@ -51,10 +52,7 @@ export function CropSuggestions({ location, soilType, acreage, experience }: Cro
           <CardDescription>Analyzing optimal crops for your conditions...</CardDescription>
         </CardHeader>
         <CardContent className="flex items-center justify-center py-8">
-          <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-            <p className="text-muted-foreground">Generating personalized recommendations...</p>
-          </div>
+          <FlowerLoader size="md" text="Generating personalized recommendations..." />
         </CardContent>
       </Card>
     )

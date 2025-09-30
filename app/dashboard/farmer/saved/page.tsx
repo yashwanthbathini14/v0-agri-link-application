@@ -9,6 +9,7 @@ import { Home, Search, Heart, MessageSquare, User, MapPin, Eye, IndianRupee } fr
 import Image from "next/image"
 import { collection, onSnapshot, query, where } from "firebase/firestore"
 import { db } from "@/lib/firebase"
+import Link from "next/link"
 
 const navigation = [
   { name: "Overview", href: "/dashboard/farmer", icon: Home },
@@ -57,8 +58,19 @@ export default function SavedPropertiesPage() {
 
         {items.length === 0 ? (
           <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              You haven’t saved any properties yet.
+            <CardContent className="py-16 text-center">
+              <Heart className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-xl font-semibold mb-2">No saved properties yet</h3>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                Start saving properties you're interested in to easily access them later. Click the heart icon on any
+                property to save it.
+              </p>
+              <Link href="/dashboard/farmer/browse">
+                <Button>
+                  <Search className="h-4 w-4 mr-2" />
+                  Browse Properties
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         ) : (

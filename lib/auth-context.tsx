@@ -3,7 +3,7 @@
 import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 import { type User, onAuthStateChanged, signOut, sendEmailVerification } from "firebase/auth"
-import { doc, onSnapshot, type FirestoreError } from "firebase/firestore"
+import { doc, onSnapshot } from "firebase/firestore"
 import { auth, db, ensureFirestoreConnection } from "./firebase"
 
 interface UserProfile {
@@ -50,6 +50,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let unsubscribeProfile: (() => void) | null = null
+    const loadingTimeout = setTimeout(() => {
+      if (loading) {
+        console.warn("[v0] Loading timeout reached, forcing loading to false")
+        setLoading(false)
+      }
+    }, 5000) // 5 second timeout
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user)
@@ -69,31 +75,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             userDocRef,
             { includeMetadataChanges: true },
             (snap) => {
-              if (snap.exists()) {
-                setUserProfile(snap.data() as UserProfile)
-                console.log("[v0] User profile loaded via snapshot")
-              } else {
-                const defaultProfile: UserProfile = {
-                  uid: user.uid,
-                  email: user.email || "",
-                  role: "farmer",
-                  name: user.displayName || user.email?.split("@")[0] || "User",
-                  createdAt: new Date(),
+              if (snap.metadata.hasPendingWrites || !snap.metadata.fromCache) {
+                if (snap.exists()) {
+                  setUserProfile(snap.data() as UserProfile)
+                  console.log("[v0] User profile loaded via snapshot")
+                } else {
+                  const defaultProfile: UserProfile = {
+                    uid: user.uid,
+                    email: user.email || "",
+                    role: "farmer",
+                    name: user.displayName || user.email?.split("@")[0] || "User",
+                    createdAt: new Date(),
+                  }
+                  setUserProfile(defaultProfile)
+                  console.log("[v0] Using default user profile (no doc yet)")
                 }
-                setUserProfile(defaultProfile)
-                console.log("[v0] Using default user profile (no doc yet)")
+                setLoading(false)
+                clearTimeout(loadingTimeout)
               }
-              setLoading(false)
             },
             (err) => {
-              const isOfflineError = (e: unknown) => {
-                const fe = e as FirestoreError & { message?: string }
-                return (
-                  fe?.code === "unavailable" ||
-                  fe?.code === "failed-precondition" ||
-                  (typeof fe?.message === "string" && fe.message.toLowerCase().includes("offline"))
-                )
-              }
               console.warn("[v0] Profile snapshot error:", err)
               const fallbackProfile: UserProfile = {
                 uid: user.uid,
@@ -104,6 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               }
               setUserProfile(fallbackProfile)
               setLoading(false)
+              clearTimeout(loadingTimeout)
             },
           )
         } catch (error) {
@@ -117,14 +119,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
           setUserProfile(fallbackProfile)
           setLoading(false)
+          clearTimeout(loadingTimeout)
         }
       } else {
         setUserProfile(null)
         setLoading(false)
+        clearTimeout(loadingTimeout)
       }
     })
 
     return () => {
+      clearTimeout(loadingTimeout)
       if (unsubscribeProfile) unsubscribeProfile()
       unsubscribe()
     }

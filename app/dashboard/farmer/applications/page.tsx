@@ -9,8 +9,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Home, Search, Heart, MessageSquare, User, MapPin, IndianRupee, Calendar, Eye, Phone } from "lucide-react"
+import {
+  Home,
+  Search,
+  Heart,
+  MessageSquare,
+  User,
+  MapPin,
+  IndianRupee,
+  Calendar,
+  Eye,
+  Phone,
+  FileText,
+} from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 
 type AppItem = {
   id: string
@@ -177,90 +190,106 @@ export default function ApplicationsPage() {
               </TabsList>
 
               <TabsContent value={activeTab} className="mt-6">
-                <div className="space-y-4">
-                  {filteredApplications.map((application) => (
-                    <Card key={application.id} className="hover:shadow-md transition-shadow">
-                      <CardContent className="p-6">
-                        <div className="flex items-start space-x-4">
-                          <div className="relative w-24 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                            <Image
-                              src={application.image || "/placeholder.svg"}
-                              alt={application.propertyTitle}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-
-                          <div className="flex-1 space-y-3">
-                            <div className="flex items-start justify-between">
-                              <div>
-                                <h3 className="font-medium text-lg">{application.propertyTitle}</h3>
-                                <div className="flex items-center text-muted-foreground mt-1">
-                                  <MapPin className="h-4 w-4 mr-1" />
-                                  {application.location}
-                                </div>
-                                <div className="flex items-center mt-1">
-                                  <IndianRupee className="h-4 w-4 mr-1 text-muted-foreground" />
-                                  <span className="font-medium">₹{application.price?.toLocaleString()}/month</span>
-                                </div>
-                              </div>
-                              <div className="text-right">
-                                <Badge className={getStatusColor(application.status)}>
-                                  {getStatusText(application.status)}
-                                </Badge>
-                                <div className="flex items-center text-sm text-muted-foreground mt-2">
-                                  <Calendar className="h-3 w-3 mr-1" />
-                                  Applied {new Date(application.appliedDate).toLocaleDateString()}
-                                </div>
-                              </div>
+                {filteredApplications.length === 0 ? (
+                  <div className="text-center py-16">
+                    <FileText className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">No applications found</h3>
+                    <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                      {activeTab === "all"
+                        ? "You haven't applied to any properties yet. Start browsing available land to find your perfect match."
+                        : `No applications with status "${activeTab.replace("_", " ")}". Check other tabs or browse more properties.`}
+                    </p>
+                    <Link href="/dashboard/farmer/browse">
+                      <Button>
+                        <Search className="h-4 w-4 mr-2" />
+                        Browse Properties
+                      </Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {filteredApplications.map((application) => (
+                      <Card key={application.id} className="hover:shadow-md transition-shadow">
+                        <CardContent className="p-6">
+                          <div className="flex items-start space-x-4">
+                            <div className="relative w-24 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                              <Image
+                                src={application.image || "/placeholder.svg"}
+                                alt={application.propertyTitle}
+                                fill
+                                className="object-cover"
+                              />
                             </div>
 
-                            <div className="bg-muted/50 p-3 rounded-lg">
-                              <p className="text-sm text-muted-foreground">
-                                <strong>Your Message:</strong> {application.message}
-                              </p>
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                              <div className="text-sm text-muted-foreground">
-                                <strong>Landowner:</strong> {application.landowner}
+                            <div className="flex-1 space-y-3">
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <h3 className="font-medium text-lg">{application.propertyTitle}</h3>
+                                  <div className="flex items-center text-muted-foreground mt-1">
+                                    <MapPin className="h-4 w-4 mr-1" />
+                                    {application.location}
+                                  </div>
+                                  <div className="flex items-center mt-1">
+                                    <IndianRupee className="h-4 w-4 mr-1 text-muted-foreground" />
+                                    <span className="font-medium">₹{application.price?.toLocaleString()}/month</span>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <Badge className={getStatusColor(application.status)}>
+                                    {getStatusText(application.status)}
+                                  </Badge>
+                                  <div className="flex items-center text-sm text-muted-foreground mt-2">
+                                    <Calendar className="h-3 w-3 mr-1" />
+                                    Applied {new Date(application.appliedDate).toLocaleDateString()}
+                                  </div>
+                                </div>
                               </div>
-                              <div className="flex space-x-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleViewProperty(application.propertyId)}
-                                >
-                                  <Eye className="h-3 w-3 mr-1" />
-                                  View Property
-                                </Button>
-                                {application.status === "approved" && (
-                                  <Button size="sm" onClick={() => handleContact(application.landownerPhone)}>
-                                    <Phone className="h-3 w-3 mr-1" />
-                                    Contact Owner
-                                  </Button>
+
+                              {application.message && (
+                                <div className="bg-muted/50 p-3 rounded-lg">
+                                  <p className="text-sm text-muted-foreground">
+                                    <strong>Your Message:</strong> {application.message}
+                                  </p>
+                                </div>
+                              )}
+
+                              <div className="flex items-center justify-between">
+                                {application.landowner && (
+                                  <div className="text-sm text-muted-foreground">
+                                    <strong>Landowner:</strong> {application.landowner}
+                                  </div>
                                 )}
-                                {application.status === "pending" && (
+                                <div className="flex space-x-2 ml-auto">
                                   <Button
                                     size="sm"
-                                    variant="destructive"
-                                    onClick={() => handleWithdraw(application.id)}
+                                    variant="outline"
+                                    onClick={() => handleViewProperty(application.propertyId)}
                                   >
-                                    Withdraw
+                                    <Eye className="h-3 w-3 mr-1" />
+                                    View Property
                                   </Button>
-                                )}
+                                  {application.status === "approved" && (
+                                    <Button size="sm" onClick={() => handleContact(application.landownerPhone)}>
+                                      <Phone className="h-3 w-3 mr-1" />
+                                      Contact Owner
+                                    </Button>
+                                  )}
+                                  {application.status === "pending" && (
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      onClick={() => handleWithdraw(application.id)}
+                                    >
+                                      Withdraw
+                                    </Button>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-
-                {filteredApplications.length === 0 && (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">No applications found for this status.</p>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 )}
               </TabsContent>
