@@ -15,22 +15,31 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 }
 
-if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-  console.error("Firebase configuration is missing. Please check your environment variables.")
+let app: any = null
+let auth: any = null
+let db: any = null
+let storage: any = null
+
+if (typeof window !== "undefined") {
+  if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+    console.error("Firebase configuration is missing. Please check your environment variables.")
+  }
+
+  // Initialize Firebase only on client
+  app = initializeApp(firebaseConfig)
+
+  // Initialize Firebase services
+  auth = getAuth(app)
+  db = getFirestore(app)
+  storage = getStorage(app)
 }
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig)
-
-// Initialize Firebase services
-export const auth = getAuth(app)
-export const db = getFirestore(app)
-export const storage = getStorage(app)
+export { app, auth, db, storage }
 
 let firestoreConnectionInitialized = false
 
 export const ensureFirestoreConnection = async () => {
-  if (firestoreConnectionInitialized) {
+  if (!db || firestoreConnectionInitialized) {
     return
   }
 
@@ -47,8 +56,10 @@ export const ensureFirestoreConnection = async () => {
 if (typeof window !== "undefined") {
   ;(async () => {
     try {
-      await enableIndexedDbPersistence(db)
-      console.log("[v0] Firestore persistence enabled")
+      if (db) {
+        await enableIndexedDbPersistence(db)
+        console.log("[v0] Firestore persistence enabled")
+      }
     } catch (error: any) {
       // failed-precondition: multiple tabs open / unimplemented: browser doesn't support
       if (error?.code !== "failed-precondition" && error?.code !== "unimplemented") {

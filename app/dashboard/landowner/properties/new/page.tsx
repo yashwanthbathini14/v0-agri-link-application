@@ -15,6 +15,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Home, MapPin, Users, MessageSquare, BarChart3, Sparkles } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { FlowerLoader } from "@/components/flower-loader"
+import { useAuth } from "@/lib/auth-context"
+import { addDoc, collection, serverTimestamp } from "firebase/firestore"
+import { db } from "@/lib/firebase"
 
 const navigation = [
   { name: "Overview", href: "/dashboard/landowner", icon: Home },
@@ -42,6 +45,7 @@ export default function NewPropertyPage() {
   const [aiGenerating, setAiGenerating] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
+  const { user, isEmailVerified } = useAuth()
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -67,15 +71,44 @@ export default function NewPropertyPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!user) {
+      setError("Please sign in to create a property listing")
+      return
+    }
+    if (!isEmailVerified) {
+      setError("Please verify your email before creating property listings")
+      return
+    }
+    if (!formData.title || !formData.location || !formData.acreage || !formData.pricePerMonth) {
+      setError("Please fill in all required fields")
+      return
+    }
+
     setLoading(true)
     setError("")
 
     try {
-      // Here you would save to Firebase
-      // For now, simulate the save
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await addDoc(collection(db, "properties"), {
+        ownerId: user.uid,
+        title: formData.title,
+        description: formData.description,
+        location: formData.location,
+        acreage: Number(formData.acreage),
+        price: Number(formData.pricePerMonth),
+        type: formData.propertyType,
+        soilType: formData.soilType,
+        waterAccess: formData.waterAccess,
+        organicCertified: formData.organicCertified,
+        equipmentIncluded: formData.equipmentIncluded,
+        housingAvailable: formData.housingAvailable,
+        createdAt: serverTimestamp(),
+        status: "active",
+        views: 0,
+      })
       router.push("/dashboard/landowner/properties")
     } catch (error: any) {
+      console.error("[v0] Failed to create property:", error)
       setError(error.message || "Failed to create property listing")
     } finally {
       setLoading(false)

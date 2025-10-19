@@ -238,7 +238,9 @@ export function RegistrationSuccessModal({ isOpen, onClose, userName, userRole }
 
   const handleContinue = () => {
     onClose()
-    router.push("/dashboard")
+    setTimeout(() => {
+      router.push("/dashboard")
+    }, 500)
   }
 
   const getRoleDisplayName = (role: string) => {

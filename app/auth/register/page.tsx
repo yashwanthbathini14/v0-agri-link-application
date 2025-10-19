@@ -68,9 +68,6 @@ export default function RegisterPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password)
       const user = userCredential.user
 
-      setShowSuccessModal(true)
-      setLoading(false)
-
       let profileImageUrl = ""
       if (profileImage) {
         try {
@@ -91,13 +88,13 @@ export default function RegisterPage() {
           profileImageUrl,
           createdAt: new Date(),
         })
-        console.log("[v0] User profile document created/updated")
+        console.log("[v0] User profile document created successfully")
       } catch (docError: any) {
-        console.warn(
-          "[v0] Failed to write user profile (will rely on default/fallback):",
-          docError?.message || docError,
-        )
+        console.warn("[v0] Failed to write user profile:", docError?.message || docError)
       }
+
+      setShowSuccessModal(true)
+      setLoading(false)
     } catch (error: any) {
       setError(error.message || "Failed to create account")
       setLoading(false)

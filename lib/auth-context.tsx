@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.warn("[v0] Loading timeout reached, forcing loading to false")
         setLoading(false)
       }
-    }, 5000) // 5 second timeout
+    }, 3000)
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user)
@@ -75,24 +75,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             userDocRef,
             { includeMetadataChanges: true },
             (snap) => {
-              if (snap.metadata.hasPendingWrites || !snap.metadata.fromCache) {
-                if (snap.exists()) {
-                  setUserProfile(snap.data() as UserProfile)
-                  console.log("[v0] User profile loaded via snapshot")
-                } else {
-                  const defaultProfile: UserProfile = {
-                    uid: user.uid,
-                    email: user.email || "",
-                    role: "farmer",
-                    name: user.displayName || user.email?.split("@")[0] || "User",
-                    createdAt: new Date(),
-                  }
-                  setUserProfile(defaultProfile)
-                  console.log("[v0] Using default user profile (no doc yet)")
+              if (snap.exists()) {
+                setUserProfile(snap.data() as UserProfile)
+                console.log("[v0] User profile loaded via snapshot")
+              } else {
+                const defaultProfile: UserProfile = {
+                  uid: user.uid,
+                  email: user.email || "",
+                  role: "farmer",
+                  name: user.displayName || user.email?.split("@")[0] || "User",
+                  createdAt: new Date(),
                 }
-                setLoading(false)
-                clearTimeout(loadingTimeout)
+                setUserProfile(defaultProfile)
+                console.log("[v0] Using default user profile (no doc yet)")
               }
+              setLoading(false)
+              clearTimeout(loadingTimeout)
             },
             (err) => {
               console.warn("[v0] Profile snapshot error:", err)

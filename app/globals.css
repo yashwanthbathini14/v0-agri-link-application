@@ -119,6 +119,8 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="28" height="28"><defs><linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23228B22;stop-opacity:1" /><stop offset="50%" style="stop-color:%231a6b1a;stop-opacity:1" /><stop offset="100%" style="stop-color:%23155E3B;stop-opacity:1" /></linearGradient></defs><path d="M16 2C16 2 10 6 8 14C6 22 10 28 16 28C22 28 26 22 24 14C22 6 16 2 16 2Z" fill="url(%23leafGrad)" stroke="%23155E3B" stroke-width="0.5"/><path d="M16 4L16 26" stroke="%23155E3B" stroke-width="0.8" opacity="0.6"/><path d="M12 8Q14 10 16 12" stroke="%23155E3B" stroke-width="0.6" fill="none" opacity="0.5"/><path d="M20 8Q18 10 16 12" stroke="%23155E3B" stroke-width="0.6" fill="none" opacity="0.5"/><path d="M10 14Q13 15 16 16" stroke="%23155E3B" stroke-width="0.6" fill="none" opacity="0.5"/><path d="M22 14Q19 15 16 16" stroke="%23155E3B" stroke-width="0.6" fill="none" opacity="0.5"/><path d="M9 20Q12 21 16 22" stroke="%23155E3B" stroke-width="0.6" fill="none" opacity="0.5"/><path d="M23 20Q20 21 16 22" stroke="%23155E3B" stroke-width="0.6" fill="none" opacity="0.5"/></svg>')
+      14 2, auto;
   }
   body {
     @apply bg-background text-foreground;
