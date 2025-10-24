@@ -55,10 +55,10 @@ const propertyDetails = {
   organicCertified: true,
   equipmentIncluded: true,
   images: [
-    "/placeholder.svg?height=400&width=600&text=Spice+Farm+Main+View",
-    "/placeholder.svg?height=400&width=600&text=Cardamom+Plants",
-    "/placeholder.svg?height=400&width=600&text=Processing+Unit",
-    "/placeholder.svg?height=400&width=600&text=Irrigation+System",
+    "https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=600&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1625246333195-78d9c38ad576?w=600&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1599599810694-b5ac4dd64b73?w=600&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1500382017468-7049fae79eef?w=600&h=400&fit=crop",
   ],
   landowner: {
     name: "Rajesh Kumar",

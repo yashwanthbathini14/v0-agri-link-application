@@ -5,79 +5,78 @@
 
 :root {
   /* Updated color tokens for agricultural theme */
-  --background: oklch(0.92 0.04 140); /* Light green background instead of white */
-  --foreground: oklch(0.15 0.12 140); /* Very dark green text */
-  --card: oklch(0.96 0.02 140); /* Very light green cards instead of white */
-  --card-foreground: oklch(0.15 0.12 140); /* Very dark green text */
-  --popover: oklch(0.96 0.02 140); /* Very light green popover */
-  --popover-foreground: oklch(0.15 0.12 140); /* Very dark green text */
-  --primary: oklch(0.25 0.15 140); /* Darker green primary */
-  --primary-foreground: oklch(0.98 0.01 140); /* Almost white text */
-  --secondary: oklch(0.78 0.08 140); /* Medium light green */
-  --secondary-foreground: oklch(0.15 0.12 140); /* Very dark green text */
-  --muted: oklch(0.88 0.04 140); /* Light green muted */
-  --muted-foreground: oklch(0.35 0.1 140); /* Medium dark green */
-  --accent: oklch(0.65 0.12 140); /* Medium green accent */
-  --accent-foreground: oklch(0.15 0.12 140); /* Very dark green text */
-  --destructive: oklch(0.55 0.25 25); /* Red */
-  --destructive-foreground: oklch(1 0 0); /* White */
-  --border: oklch(0.82 0.06 140); /* Medium light green border */
-  --input: oklch(0.96 0.02 140); /* Very light green input */
-  --ring: oklch(0.25 0.15 140 / 0.5); /* Dark green ring */
-  --chart-1: oklch(0.75 0.08 140); /* Light green */
-  --chart-2: oklch(0.65 0.1 140); /* Medium green */
-  --chart-3: oklch(0.55 0.12 140); /* Darker green */
-  --chart-4: oklch(0.45 0.14 140); /* Even darker green */
-  --chart-5: oklch(0.35 0.16 140); /* Darkest green */
+  --background: oklch(0.92 0.04 140);
+  --foreground: oklch(0.15 0.12 140);
+  --card: oklch(0.96 0.02 140);
+  --card-foreground: oklch(0.15 0.12 140);
+  --popover: oklch(0.96 0.02 140);
+  --popover-foreground: oklch(0.15 0.12 140);
+  --primary: oklch(0.25 0.15 140);
+  --primary-foreground: oklch(0.98 0.01 140);
+  --secondary: oklch(0.78 0.08 140);
+  --secondary-foreground: oklch(0.15 0.12 140);
+  --muted: oklch(0.88 0.04 140);
+  --muted-foreground: oklch(0.35 0.1 140);
+  --accent: oklch(0.65 0.12 140);
+  --accent-foreground: oklch(0.15 0.12 140);
+  --destructive: oklch(0.55 0.25 25);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.82 0.06 140);
+  --input: oklch(0.96 0.02 140);
+  --ring: oklch(0.25 0.15 140 / 0.5);
+  --chart-1: oklch(0.75 0.08 140);
+  --chart-2: oklch(0.65 0.1 140);
+  --chart-3: oklch(0.55 0.12 140);
+  --chart-4: oklch(0.45 0.14 140);
+  --chart-5: oklch(0.35 0.16 140);
   --radius: 0.5rem;
-  --sidebar: oklch(0.94 0.03 140); /* Light green sidebar */
-  --sidebar-foreground: oklch(0.15 0.12 140); /* Very dark green text */
-  --sidebar-primary: oklch(0.88 0.04 140); /* Light green primary */
-  --sidebar-primary-foreground: oklch(0.15 0.12 140); /* Very dark green text */
-  --sidebar-accent: oklch(0.65 0.12 140); /* Medium green accent */
-  --sidebar-accent-foreground: oklch(0.15 0.12 140); /* Very dark green text */
-  --sidebar-border: oklch(0.82 0.06 140); /* Medium light green border */
-  --sidebar-ring: oklch(0.25 0.15 140 / 0.5); /* Dark green ring */
+  --sidebar: oklch(0.94 0.03 140);
+  --sidebar-foreground: oklch(0.15 0.12 140);
+  --sidebar-primary: oklch(0.88 0.04 140);
+  --sidebar-primary-foreground: oklch(0.15 0.12 140);
+  --sidebar-accent: oklch(0.65 0.12 140);
+  --sidebar-accent-foreground: oklch(0.15 0.12 140);
+  --sidebar-border: oklch(0.82 0.06 140);
+  --sidebar-ring: oklch(0.25 0.15 140 / 0.5);
 }
 
 .dark {
-  --background: oklch(0.08 0.02 140); /* Very dark green */
-  --foreground: oklch(0.95 0.01 140); /* Very light green */
-  --card: oklch(0.12 0.03 140); /* Dark green card */
-  --card-foreground: oklch(0.95 0.01 140); /* Very light green */
-  --popover: oklch(0.12 0.03 140); /* Dark green */
-  --popover-foreground: oklch(0.95 0.01 140); /* Very light green */
-  --primary: oklch(0.65 0.1 140); /* Medium light green */
-  --primary-foreground: oklch(0.08 0.02 140); /* Very dark green */
-  --secondary: oklch(0.18 0.04 140); /* Dark green */
-  --secondary-foreground: oklch(0.95 0.01 140); /* Very light green */
-  --muted: oklch(0.18 0.04 140); /* Dark green */
-  --muted-foreground: oklch(0.65 0.06 140); /* Medium green */
-  --accent: oklch(0.25 0.06 140); /* Darker green */
-  --accent-foreground: oklch(0.95 0.01 140); /* Very light green */
-  --destructive: oklch(0.4 0.15 25); /* Dark red */
-  --destructive-foreground: oklch(0.6 0.25 25); /* Light red */
-  --border: oklch(0.25 0.06 140); /* Dark green border */
-  --input: oklch(0.25 0.06 140); /* Dark green input */
-  --ring: oklch(0.45 0.08 140); /* Medium green ring */
-  --chart-1: oklch(0.5 0.12 140); /* Chart green 1 */
-  --chart-2: oklch(0.6 0.1 140); /* Chart green 2 */
-  --chart-3: oklch(0.7 0.08 140); /* Chart green 3 */
-  --chart-4: oklch(0.8 0.06 140); /* Chart green 4 */
-  --chart-5: oklch(0.9 0.04 140); /* Chart green 5 */
-  --sidebar: oklch(0.12 0.03 140); /* Dark green sidebar */
-  --sidebar-foreground: oklch(0.95 0.01 140); /* Very light green */
-  --sidebar-primary: oklch(0.5 0.12 140); /* Medium green */
-  --sidebar-primary-foreground: oklch(0.95 0.01 140); /* Very light green */
-  --sidebar-accent: oklch(0.25 0.06 140); /* Dark green accent */
-  --sidebar-accent-foreground: oklch(0.95 0.01 140); /* Very light green */
-  --sidebar-border: oklch(0.25 0.06 140); /* Dark green border */
-  --sidebar-ring: oklch(0.45 0.08 140); /* Medium green ring */
+  --background: oklch(0.08 0.02 140);
+  --foreground: oklch(0.95 0.01 140);
+  --card: oklch(0.12 0.03 140);
+  --card-foreground: oklch(0.95 0.01 140);
+  --popover: oklch(0.12 0.03 140);
+  --popover-foreground: oklch(0.95 0.01 140);
+  --primary: oklch(0.65 0.1 140);
+  --primary-foreground: oklch(0.08 0.02 140);
+  --secondary: oklch(0.18 0.04 140);
+  --secondary-foreground: oklch(0.95 0.01 140);
+  --muted: oklch(0.18 0.04 140);
+  --muted-foreground: oklch(0.65 0.06 140);
+  --accent: oklch(0.25 0.06 140);
+  --accent-foreground: oklch(0.95 0.01 140);
+  --destructive: oklch(0.4 0.15 25);
+  --destructive-foreground: oklch(0.6 0.25 25);
+  --border: oklch(0.25 0.06 140);
+  --input: oklch(0.25 0.06 140);
+  --ring: oklch(0.45 0.08 140);
+  --chart-1: oklch(0.5 0.12 140);
+  --chart-2: oklch(0.6 0.1 140);
+  --chart-3: oklch(0.7 0.08 140);
+  --chart-4: oklch(0.8 0.06 140);
+  --chart-5: oklch(0.9 0.04 140);
+  --sidebar: oklch(0.12 0.03 140);
+  --sidebar-foreground: oklch(0.95 0.01 140);
+  --sidebar-primary: oklch(0.5 0.12 140);
+  --sidebar-primary-foreground: oklch(0.95 0.01 140);
+  --sidebar-accent: oklch(0.25 0.06 140);
+  --sidebar-accent-foreground: oklch(0.95 0.01 140);
+  --sidebar-border: oklch(0.25 0.06 140);
+  --sidebar-ring: oklch(0.45 0.08 140);
 }
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* optional: --font-sans, --font-serif, --font-mono if they are applied in the layout.tsx */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

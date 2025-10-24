@@ -52,10 +52,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let unsubscribeProfile: (() => void) | null = null
     const loadingTimeout = setTimeout(() => {
       if (loading) {
-        console.warn("[v0] Loading timeout reached, forcing loading to false")
+        console.log("[v0] Loading timeout reached, forcing redirect")
         setLoading(false)
       }
-    }, 3000)
+    }, 1000)
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user)
@@ -77,7 +77,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             (snap) => {
               if (snap.exists()) {
                 setUserProfile(snap.data() as UserProfile)
-                console.log("[v0] User profile loaded via snapshot")
               } else {
                 const defaultProfile: UserProfile = {
                   uid: user.uid,
@@ -87,7 +86,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   createdAt: new Date(),
                 }
                 setUserProfile(defaultProfile)
-                console.log("[v0] Using default user profile (no doc yet)")
               }
               setLoading(false)
               clearTimeout(loadingTimeout)
@@ -107,7 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             },
           )
         } catch (error) {
-          console.warn("Error initializing profile listener (continuing with fallback):", error)
+          console.warn("Error initializing profile listener:", error)
           const fallbackProfile: UserProfile = {
             uid: user.uid,
             email: user.email || "",

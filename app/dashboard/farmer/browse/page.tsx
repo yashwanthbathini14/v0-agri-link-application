@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -56,7 +56,6 @@ const indianStates = [
   "West Bengal",
 ]
 
-// Enhanced property data with additional fields for advanced filtering
 const allProperties = [
   {
     id: 1,
@@ -84,7 +83,7 @@ const allProperties = [
     storageAvailable: false,
     processingFacility: true,
     contractFarming: false,
-    image: "/placeholder.svg?height=200&width=300&text=Spice+Farm+Kerala",
+    image: "https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=400&h=300&fit=crop&q=80",
   },
   {
     id: 2,
@@ -111,7 +110,7 @@ const allProperties = [
     storageAvailable: true,
     processingFacility: false,
     contractFarming: true,
-    image: "/placeholder.svg?height=200&width=300&text=Cotton+Farm+Gujarat",
+    image: "https://images.unsplash.com/photo-1625246333195-78d9c38ad576?w=400&h=300&fit=crop&q=80",
   },
   {
     id: 3,
@@ -138,7 +137,7 @@ const allProperties = [
     storageAvailable: true,
     processingFacility: true,
     contractFarming: true,
-    image: "/placeholder.svg?height=200&width=300&text=Rice+Fields+Punjab",
+    image: "https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=400&h=300&fit=crop&q=80",
   },
   {
     id: 4,
@@ -165,7 +164,7 @@ const allProperties = [
     storageAvailable: false,
     processingFacility: true,
     contractFarming: false,
-    image: "/placeholder.svg?height=200&width=300&text=Mango+Orchard+Maharashtra",
+    image: "https://images.unsplash.com/photo-1599599810694-b5ac4dd64b73?w=400&h=300&fit=crop&q=80",
   },
   {
     id: 5,
@@ -192,7 +191,7 @@ const allProperties = [
     storageAvailable: true,
     processingFacility: true,
     contractFarming: true,
-    image: "/placeholder.svg?height=200&width=300&text=Tea+Garden+Darjeeling",
+    image: "https://images.unsplash.com/photo-1625246333195-78d9c38ad576?w=400&h=300&fit=crop&q=80",
   },
   {
     id: 6,
@@ -219,7 +218,7 @@ const allProperties = [
     storageAvailable: true,
     processingFacility: false,
     contractFarming: true,
-    image: "/placeholder.svg?height=200&width=300&text=Wheat+Farm+Haryana",
+    image: "https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=400&h=300&fit=crop&q=80",
   },
   {
     id: 7,
@@ -246,7 +245,7 @@ const allProperties = [
     storageAvailable: false,
     processingFacility: false,
     contractFarming: false,
-    image: "/placeholder.svg?height=200&width=300&text=Sugarcane+Farm+Maharashtra",
+    image: "https://images.unsplash.com/photo-1625246333195-78d9c38ad576?w=400&h=300&fit=crop&q=80",
   },
   {
     id: 8,
@@ -273,7 +272,7 @@ const allProperties = [
     storageAvailable: false,
     processingFacility: false,
     contractFarming: false,
-    image: "/placeholder.svg?height=200&width=300&text=Coconut+Plantation+Tamil+Nadu",
+    image: "https://images.unsplash.com/photo-1599599810694-b5ac4dd64b73?w=400&h=300&fit=crop&q=80",
   },
 ]
 
@@ -321,7 +320,7 @@ export default function BrowseLandPage() {
     return () => unsub()
   }, [user])
 
-  useEffect(() => {
+  const filteredAndSortedProperties = useMemo(() => {
     let filtered = allProperties.filter((property) => {
       const matchesSearch =
         searchQuery === "" ||
@@ -398,8 +397,12 @@ export default function BrowseLandPage() {
       filtered = filtered.sort((a, b) => b.acreage - a.acreage)
     }
 
-    setFilteredProperties(filtered)
+    return filtered
   }, [searchQuery, locationQuery, priceRange, acreageRange, propertyType, selectedState, sortBy, advancedFilters])
+
+  useEffect(() => {
+    setFilteredProperties(filteredAndSortedProperties)
+  }, [filteredAndSortedProperties])
 
   const clearAdvancedFilters = () => {
     setAdvancedFilters({
@@ -454,10 +457,8 @@ export default function BrowseLandPage() {
     const alreadySaved = savedIds.has(propertyId)
     try {
       if (alreadySaved) {
-        // delete any saved doc with this propertyId and userId
         const q = query(collection(db, "saved"), where("userId", "==", user.uid), where("propertyId", "==", propertyId))
         const unsub = onSnapshot(q, async (snap) => {
-          // one-shot delete; immediately unsubscribe
           unsub()
           const batchDeletes = snap.docs.map((d) => deleteDoc(doc(db, "saved", d.id)))
           await Promise.all(batchDeletes)
@@ -631,12 +632,14 @@ export default function BrowseLandPage() {
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-4">
-                          <div className="relative w-20 h-20 rounded-lg overflow-hidden">
+                          <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
                             <Image
                               src={property.image || "/placeholder.svg"}
                               alt={property.title}
                               fill
                               className="object-cover"
+                              loading="lazy"
+                              sizes="80px"
                             />
                           </div>
                           <div className="flex-1">
