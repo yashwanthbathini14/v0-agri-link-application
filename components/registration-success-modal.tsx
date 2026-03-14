@@ -229,18 +229,24 @@ export function RegistrationSuccessModal({ isOpen, onClose, userName, userRole }
   useEffect(() => {
     if (isOpen) {
       setShowConfetti(true)
-      const timer1 = setTimeout(() => setShowConfetti(false), 3000)
+      
+      // Auto-redirect after 3 seconds
+      const redirectTimer = setTimeout(() => {
+        router.push("/dashboard")
+      }, 3000)
+      
+      const confettiTimer = setTimeout(() => setShowConfetti(false), 3000)
+      
       return () => {
-        clearTimeout(timer1)
+        clearTimeout(redirectTimer)
+        clearTimeout(confettiTimer)
       }
     }
-  }, [isOpen])
+  }, [isOpen, router])
 
   const handleContinue = () => {
     onClose()
-    setTimeout(() => {
-      router.push("/dashboard")
-    }, 500)
+    router.push("/dashboard")
   }
 
   const getRoleDisplayName = (role: string) => {

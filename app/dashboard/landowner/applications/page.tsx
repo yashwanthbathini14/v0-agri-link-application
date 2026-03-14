@@ -114,6 +114,7 @@ const mockApplications = [
 export default function LandownerApplicationsPage() {
   const [selectedApplication, setSelectedApplication] = useState<(typeof mockApplications)[0] | null>(null)
   const [showDialog, setShowDialog] = useState(false)
+  const [applications, setApplications] = useState(mockApplications)
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -146,13 +147,25 @@ export default function LandownerApplicationsPage() {
   }
 
   const filterByStatus = (status: string) => {
-    if (status === "all") return mockApplications
-    return mockApplications.filter((app) => app.status === status)
+    if (status === "all") return applications
+    return applications.filter((app) => app.status === status)
   }
 
   const handleViewDetails = (application: (typeof mockApplications)[0]) => {
     setSelectedApplication(application)
     setShowDialog(true)
+  }
+
+  const handleApproveApplication = (applicationId: string) => {
+    setApplications(applications.map(app => 
+      app.id === applicationId ? { ...app, status: "approved" as const } : app
+    ))
+  }
+
+  const handleRejectApplication = (applicationId: string) => {
+    setApplications(applications.map(app => 
+      app.id === applicationId ? { ...app, status: "rejected" as const } : app
+    ))
   }
 
   const ApplicationCard = ({ application }: { application: (typeof mockApplications)[0] }) => (
@@ -194,11 +207,21 @@ export default function LandownerApplicationsPage() {
           </Button>
           {application.status === "pending" && (
             <>
-              <Button size="sm" variant="outline" className="text-green-600 bg-transparent">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="text-green-600 bg-transparent hover:bg-green-50"
+                onClick={() => handleApproveApplication(application.id)}
+              >
                 <CheckCircle className="h-4 w-4 mr-1" />
                 Approve
               </Button>
-              <Button size="sm" variant="outline" className="text-red-600 bg-transparent">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="text-red-600 bg-transparent hover:bg-red-50"
+                onClick={() => handleRejectApplication(application.id)}
+              >
                 <XCircle className="h-4 w-4 mr-1" />
                 Reject
               </Button>
@@ -229,7 +252,7 @@ export default function LandownerApplicationsPage() {
               <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{mockApplications.length}</div>
+              <div className="text-2xl font-bold">{applications.length}</div>
             </CardContent>
           </Card>
           <Card>
@@ -237,7 +260,7 @@ export default function LandownerApplicationsPage() {
               <CardTitle className="text-sm font-medium">Pending</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{mockApplications.filter((a) => a.status === "pending").length}</div>
+              <div className="text-2xl font-bold">{applications.filter((a) => a.status === "pending").length}</div>
             </CardContent>
           </Card>
           <Card>
@@ -246,7 +269,7 @@ export default function LandownerApplicationsPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {mockApplications.filter((a) => a.status === "under_review").length}
+                {applications.filter((a) => a.status === "under_review").length}
               </div>
             </CardContent>
           </Card>
