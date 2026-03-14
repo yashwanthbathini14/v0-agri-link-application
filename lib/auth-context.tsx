@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log("[v0] Loading timeout reached, forcing redirect")
         setLoading(false)
       }
-    }, 1000)
+    }, 500)
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user)
